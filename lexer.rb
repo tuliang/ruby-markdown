@@ -1,14 +1,19 @@
-require "./library/token.rb"
+# 引入 lib 下所有 *.rb文件
+Dir[File.dirname(__FILE__) + '/lib/*.rb'].each {|file| require file }
 
 class Lexer
   attr_accessor :filename, :regex, :queue
 
   def initialize(filename)
     @filename = filename
-    @regex = /(^##)|(^#)|(^```)|(.+)/
+    @regex = /(^###)|(^##)|(^#)|(^```)|(.+)/
     @queue = []
 
     read
+  end
+
+  def parser
+    Parser.new(@queue)
   end
 
   def read
@@ -17,10 +22,6 @@ class Lexer
       @line_number = i + 1
 
       readline(line)
-    end
-
-    @queue.each do |item|
-      p item
     end
   end
 
@@ -40,13 +41,15 @@ class Lexer
 
   def add_token(item)
     if item[0] != nil
-      token = Token.new('H2', @line_number)
+      token = Token.new('H3', @line_number)
     elsif item[1] != nil
-      token = Token.new('H1', @line_number)
+      token = Token.new('H2', @line_number)
     elsif item[2] != nil
-      token = Token.new('Code', @line_number)
+      token = Token.new('H1', @line_number)
     elsif item[3] != nil
-      token = Token.new('Text', @line_number, item[3])
+      token = Token.new('Code', @line_number)
+    elsif item[4] != nil
+      token = Token.new('Text', @line_number, item[4])
     else
       raise "bad token at line #{@line_number}"
     end
@@ -55,4 +58,11 @@ class Lexer
   end
 end
 
-Lexer.new("README.md")
+# 读取文件 生成单词序列
+lexer = Lexer.new("README.md")
+# 读取单词序列 生成 AST
+parser = lexer.parser
+# 显示 AST
+puts parser.show
+# 转换为 HTML
+puts parser.to_html
