@@ -9,31 +9,46 @@ class Parser
   def ast_runner
     index = 0
     ast = []
+
+    # 遍历队列
     while @queue.length > index do
       token = @queue[index]
 
       case token.type
       when 'H1', 'H2', 'H3'
         # H1 H2 H3 规则
-        # index 向后移动 1 位 并将节点附加到 children 末尾
         node = ASTList.new(token)
 
+        # index 向后移动 1 位 指向下个节点 
         index += 1
-        node.children << ASTLeaf.new(@queue[index])
+        next_node = @queue[index]
+        # 去除左边的空格
+        next_node.text.lstrip!
+        # 将节点附加到 children 末尾
+        node.children << ASTLeaf.new(next_node)
       when 'Text'
         # Text 规则 
         # 直接生成叶子节点
         node = ASTLeaf.new(token)
       when 'Code'
         # Code 规则 
-        # index 向后移动 1 位 并将节点附加到 children 末尾
+        
         node = ASTList.new(token)
 
-        index += 1
-        node.children << ASTLeaf.new(@queue[index])
-
-        # index 再向后移动 1 位 因为当前节点为闭合节点 所以不做任何操作
-        index += 1
+        # Code 未闭合前一直循环
+        while true do
+          # index 向后移动 1 位 指向下个节点 
+          index += 1
+          next_node = @queue[index]
+          
+          if next_node.type == 'Code'
+            # 当前节点为闭合节点 退出循环
+            break
+          else
+            # 将节点附加到 children 末尾
+            node.children << ASTLeaf.new(next_node)
+          end
+        end
       else
         raise "bad token type at line #{token.line_number}"
       end
@@ -50,7 +65,8 @@ class Parser
 
   def show
     @ast.each do |item|
-      item.to_s
+      puts item
+      puts "\n"
     end
   end
 

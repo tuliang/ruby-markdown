@@ -63,6 +63,6 @@ lexer = Lexer.new("README.md")
 # 读取单词序列 生成 AST
 parser = lexer.parser
 # 显示 AST
-puts parser.show
+parser.show
 # 转换为 HTML
 puts parser.to_html
