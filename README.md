@@ -19,3 +19,10 @@
 ```
 ruby lexer.rb
 ```
+
+```
+lexer = Lexer.new("README.md")
+parser = lexer.parser
+parser.show
+puts parser.to_html
+```

@@ -17,7 +17,7 @@ class Parser
       case token.type
       when 'H1', 'H2', 'H3'
         # H1 H2 H3 规则
-        node = ASTList.new(token)
+        node = ASTHeading.new(token)
 
         # index 向后移动 1 位 指向下个节点 
         index += 1
@@ -29,11 +29,11 @@ class Parser
       when 'Text'
         # Text 规则 
         # 直接生成叶子节点
-        node = ASTLeaf.new(token)
+        node = ASTText.new(token)
       when 'Code'
         # Code 规则 
         
-        node = ASTList.new(token)
+        node = ASTCode.new(token)
 
         # Code 未闭合前一直循环
         while true do
@@ -64,18 +64,13 @@ class Parser
   end
 
   def show
-    @ast.each do |item|
-      puts item
+    @ast.each do |node|
+      puts node
       puts "\n"
     end
   end
 
   def to_html
-    html = ''
-    @ast.each do |item|
-      html += item.to_html
-    end
-
-    html
+    @ast.collect {|node| node.to_html }.join
   end
 end

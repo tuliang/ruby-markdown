@@ -31,19 +31,6 @@ class ASTNode
   end
 
   def to_html
-    case @token.type
-    when 'H1'
-      "<h1>#{@children[0].token.text}</h1>"
-    when 'H2'
-      "<h2>#{@children[0].token.text}</h2>"
-    when 'H3'
-      "<h3>#{@children[0].token.text}</h3>"
-    when 'Text'
-      "<p>#{@token.text}</p>"
-    when 'Code'
-      "<pre><code>#{@children.collect {|item| "<p>#{item.token.text}</p>"}.join }</code><pre>"
-    else
-      raise "bad token type at line #{@token.line_number}"
-    end
+    ""
   end
 end
