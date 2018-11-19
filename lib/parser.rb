@@ -15,8 +15,7 @@ class Parser
       token = @queue[index]
 
       case token.type
-      when 'H1', 'H2', 'H3'
-        # H1 H2 H3 规则
+      when :h1, :h2, :h3, :h4, :h5, :h6
         node = ASTHeading.new(token)
 
         # index 向后移动 1 位 指向下个节点 
@@ -26,22 +25,18 @@ class Parser
         next_node.text.lstrip!
         # 将节点附加到 children 末尾
         node.children << ASTLeaf.new(next_node)
-      when 'Text'
-        # Text 规则 
-        # 直接生成叶子节点
+      when :text
         node = ASTText.new(token)
-      when 'Code'
-        # Code 规则 
-        
+      when :code
         node = ASTCode.new(token)
 
-        # Code 未闭合前一直循环
+        # 未闭合前一直循环
         while true do
           # index 向后移动 1 位 指向下个节点 
           index += 1
           next_node = @queue[index]
           
-          if next_node.type == 'Code'
+          if next_node.type == :code
             # 当前节点为闭合节点 退出循环
             break
           else

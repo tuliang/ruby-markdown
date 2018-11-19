@@ -4,9 +4,22 @@ Dir[File.dirname(__FILE__) + '/lib/*.rb'].each {|file| require file }
 class Lexer
   attr_accessor :filename, :regex, :queue
 
+  RULES = [
+    [:h6, "(^######)"],
+    [:h5, "(^#####)"],
+    [:h4, "(^####)"],
+    [:h3, "(^###)"],
+    [:h2, "(^##)"],
+    [:h1, "(^#)"],
+    [:code, "(^```)"],
+    [:text, "(.+)"]
+  ]
+
+  RULE = RULES.collect {|k,v| v }.join('|')
+
   def initialize(filename)
     @filename = filename
-    @regex = /(^###)|(^##)|(^#)|(^```)|(.+)/
+    @regex = Regexp.new(RULE)
     @queue = []
 
     read
@@ -28,29 +41,35 @@ class Lexer
   private
 
   def readline(line)
-    array = line.scan(@regex)
+    array_list = line.scan(@regex)
 
-    if array.length != 0
-      array.each do |item|
-        add_token(item)
+    if array_list.length != 0
+      array_list.each do |array|
+        add_token(array)
       end
     else
       # 空行
     end
   end
 
-  def add_token(item)
-    if item[0] != nil
-      token = Token.new('H3', @line_number)
-    elsif item[1] != nil
-      token = Token.new('H2', @line_number)
-    elsif item[2] != nil
-      token = Token.new('H1', @line_number)
-    elsif item[3] != nil
-      token = Token.new('Code', @line_number)
-    elsif item[4] != nil
-      token = Token.new('Text', @line_number, item[4])
-    else
+  def add_token(array)
+    token = Token.new
+
+    array.each_with_index do |item, index|
+      if item != nil
+        token.type = RULES[index][0]
+        token.line_number = @line_number
+
+        if token.type == :text
+          token.text = item 
+        end
+
+        # 找到单词 退出循环
+        break
+      end
+    end
+
+    if token.type.nil?
       raise "bad token at line #{@line_number}"
     end
 
