@@ -1,10 +1,13 @@
 require_relative "ASTList.rb"
 
 class ASTHeading < ASTList
+  def body
+    @children[0].token.text
+  end
 
   def to_html
-    tag = @token.type.downcase
+    tag = @token.type
 
-    "<#{tag}>#{@children[0].token.text}</#{tag}>"
+    "<#{tag}>#{body}</#{tag}>"
   end
 end

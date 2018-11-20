@@ -1,6 +1,10 @@
 require_relative "ASTNode.rb"
 
 class ASTList < ASTNode
+  def body
+    ""
+  end
+
   def to_s
     s = @token.type.to_s
 
