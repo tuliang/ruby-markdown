@@ -6,6 +6,6 @@ class ASTCode < ASTList
   end
 
   def to_html
-    "<pre><code>#{body}</code><pre>"
+    "<pre><code>#{body}</code></pre>"
   end
 end

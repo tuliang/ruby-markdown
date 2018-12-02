@@ -20,11 +20,11 @@ class Parser
 
         # index 向后移动 1 位 指向下个节点 
         index += 1
-        next_node = @queue[index]
+        next_token = @queue[index]
         # 去除左边的空格
-        next_node.text.lstrip!
+        next_token.text.lstrip!
         # 将节点附加到 children 末尾
-        node.children << ASTLeaf.new(next_node)
+        node.children << ASTLeaf.new(next_token)
       when :text
         node = ASTText.new(token)
       when :code
@@ -34,14 +34,14 @@ class Parser
         while true do
           # index 向后移动 1 位 指向下个节点 
           index += 1
-          next_node = @queue[index]
+          next_token = @queue[index]
           
-          if next_node.type == :code
+          if next_token.type == :code
             # 当前节点为闭合节点 退出循环
             break
           else
             # 将节点附加到 children 末尾
-            node.children << ASTLeaf.new(next_node)
+            node.children << ASTLeaf.new(next_token)
           end
         end
       when :blockquote
@@ -49,11 +49,39 @@ class Parser
 
         # index 向后移动 1 位 指向下个节点 
         index += 1
-        next_node = @queue[index]
-        # 去除左边的空格
-        next_node.text.lstrip!
+        next_token = @queue[index]
         # 将节点附加到 children 末尾
-        node.children << ASTLeaf.new(next_node)
+        node.children << ASTLeaf.new(next_token)
+      when :ul
+        node = ASTUl.new(token)
+
+        # 未闭合前一直循环
+        while true do
+          # index 向后移动 1 位 指向下个节点 
+          index += 1
+          next_token = @queue[index]
+          
+          if next_token.type == :ul
+            # 向后探索
+            explore_token = @queue[index+1]
+            # 越界 退出循环
+            break if explore_token.nil?
+            # 继续向后探索
+            explore_token2 = @queue[index+2]
+
+            # 确定后面没有子节点
+            if explore_token2.nil? || explore_token2.type != :ul
+              index += 2
+              node.children << ASTLeaf.new(explore_token)
+
+              # 当前节点为闭合节点 退出循环
+              break
+            end
+          else
+            # 将节点附加到 children 末尾
+            node.children << ASTLeaf.new(next_token)
+          end
+        end
       else
         raise "bad token type at line #{token.line_number}"
       end
