@@ -5,6 +5,7 @@ class Lexer
   attr_accessor :filename, :regex, :queue
 
   RULES = [
+    [:blockquote, "(^>)"],
     [:h6, "(^######)"],
     [:h5, "(^#####)"],
     [:h4, "(^####)"],

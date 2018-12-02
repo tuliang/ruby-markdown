@@ -44,6 +44,16 @@ class Parser
             node.children << ASTLeaf.new(next_node)
           end
         end
+      when :blockquote
+        node = ASTBlockquote.new(token)
+
+        # index 向后移动 1 位 指向下个节点 
+        index += 1
+        next_node = @queue[index]
+        # 去除左边的空格
+        next_node.text.lstrip!
+        # 将节点附加到 children 末尾
+        node.children << ASTLeaf.new(next_node)
       else
         raise "bad token type at line #{token.line_number}"
       end
